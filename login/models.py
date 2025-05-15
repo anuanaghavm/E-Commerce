@@ -19,7 +19,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = (
         ('admin', 'Admin'),
-        ('student', 'Student'),
+        ('user', 'User'),
     )
 
     email = models.EmailField(unique=True)
