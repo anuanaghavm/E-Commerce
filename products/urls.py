@@ -1,11 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from . import views
-
-router = DefaultRouter()
-router.register(r'products', views.ProductViewSet)
-router.register(r'products/(?P<product_pk>\d+)/images', views.ProductImageViewSet, basename='product-image')
+from views import ProductListCreateAPIView,ProductRetrieveUpdateDestroyAPIView,ProductAttributeListCreateAPIView,ProductAttributeRetrieveupdateDestroyAPIView
 
 urlpatterns = [
-    path('', include(router.urls)),
-] 
+    path('product/',ProductListCreateAPIView.as_view(),name="product-list-create"),
+    path('product/<int:pk>/',ProductRetrieveUpdateDestroyAPIView.as_view(),name="product-retrieve-update-destroy")
+]
