@@ -1,88 +1,35 @@
+# accounts/serializers.py
 from rest_framework import serializers
 from .models import User
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'password', 'role']
+        fields = ['email', 'name', 'phone_number', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        user = User.objects.create_user(**validated_data)
+        return user
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    role = serializers.CharField(read_only=True)
-    name = serializers.CharField(read_only=True)
+    access = serializers.CharField(read_only=True)
+    refresh = serializers.CharField(read_only=True)
+    uuid = serializers.UUIDField(read_only=True)
 
     def validate(self, data):
-        email = data.get('email')
-        password = data.get('password')
-
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("Invalid credentials")
-
-        if not user.check_password(password):
-            raise serializers.ValidationError("Invalid credentials")
-
+        user = authenticate(email=data['email'], password=data['password'])
+        if not user:
+            raise serializers.ValidationError('Invalid email or password')
+        refresh = RefreshToken.for_user(user)
         return {
-            'id': user.id,
             'email': user.email,
-            'name': user.name,
-            'role': user.role,
-            'user': user  # 👈 used for JWT
+            'uuid': user.uuid,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
         }
-
-class ForgotPasswordSerializer(serializers.Serializer):
-    name = serializers.CharField()
-    email = serializers.EmailField()
-    new_password = serializers.CharField(write_only=True)
-
-    def validate(self, data):
-        name = data.get('name')
-        email = data.get('email')
-        try:
-            user = User.objects.get(name=name, email=email)
-            data['user'] = user
-        except User.DoesNotExist:
-            raise serializers.ValidationError("User not found with given name and email.")
-        return data
-
-    def save(self):
-        user = self.validated_data['user']
-        new_password = self.validated_data['new_password']
-        user.set_password(new_password)
-        user.save()
-        return user
-
-
-class ResetPasswordSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    current_password = serializers.CharField(write_only=True)
-    new_password = serializers.CharField(write_only=True)
-
-    def validate(self, data):
-        email = data.get('email')
-        current_password = data.get('current_password')
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("Invalid email.")
-
-        if not user.check_password(current_password):
-            raise serializers.ValidationError("Current password is incorrect.")
-
-        data['user'] = user
-        return data
-
-    def save(self):
-        user = self.validated_data['user']
-        new_password = self.validated_data['new_password']
-        user.set_password(new_password)
-        user.save()
-        return user
