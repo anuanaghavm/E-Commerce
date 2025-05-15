@@ -7,10 +7,7 @@ class CategoryListView(generics.ListCreateAPIView):
     queryset = Category.objects.filter(parent=None)
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['is_active']
-    search_fields = ['name', 'description']
-    ordering_fields = ['name', 'created_at']
+    
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()

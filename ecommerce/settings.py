@@ -38,16 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # Third party apps
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
     'corsheaders',
-    
-    # Local apps
     'categories',
     'brands',
+    'login',
 ]
 
 MIDDLEWARE = [
@@ -111,6 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'login.user'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

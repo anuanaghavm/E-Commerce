@@ -1,10 +1,7 @@
 from django.urls import path
-from .views import BrandListView, BrandDetailView, BrandLandingPageView
-
-app_name = 'brands'
+from .views import BrandListCreateView, BrandDetailView
 
 urlpatterns = [
-    path('', BrandListView.as_view(), name='brand-list'),
-    path('<slug:slug>/', BrandDetailView.as_view(), name='brand-detail'),
-    path('landing/<slug:slug>/', BrandLandingPageView.as_view(), name='brand-landing'),
-] 
+    path('brands/', BrandListCreateView.as_view(), name='brand-list'),
+    path('brands/<slug:slug>/', BrandDetailView.as_view(), name='brand-detail'),
+]
